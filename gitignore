@@ -1,0 +1,7 @@
+target/
+credentials.json
+tokens/
+data/
+.env
+*.iml
+.idea/
