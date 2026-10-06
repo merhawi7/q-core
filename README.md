@@ -75,7 +75,7 @@ docs/                              GitHub Pages demo and screenshot
 ```
 
 ## Status
-The engine and `SequencePlanner` were compiled and run (Bell state 50/50 on `00`/`11`, event order and timings checked). The Spring Boot app, the unit tests, the CI workflow and the ESP32 firmware have **not** been run on real hardware or in CI yet, so expect to adjust pins, power and libraries. The dashboard's "Preview" mode is a JavaScript port of the same rules.
+The engine, `SequencePlanner` and unit tests pass locally (`mvn test`: 10 tests, 0 failures). The ESP32 firmware has **not** been tested on real hardware yet, so expect to adjust pins, power and libraries. The dashboard's "Preview" mode is a JavaScript port of the same rules.
 
 ## Roadmap
 Grover and Deutsch-Jozsa examples, a React dashboard, noise models, saving circuits, a real quantum backend.
