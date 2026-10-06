@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Q-Core — Live</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--tx:#122030;--mu:#5d6d7e;--bd:#d9dfe7;--ac:#2563eb;--ok:#16a34a;--sf:#f5f7fa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1117;--card:#141b24;--tx:#e6edf5;--mu:#93a4b5;--bd:#273140;--ac:#6b9bff;--ok:#4ade80;--sf:#1a2330}}
+:root[data-theme="dark"]{--bg:#0c1117;--card:#141b24;--tx:#e6edf5;--mu:#93a4b5;--bd:#273140;--ac:#6b9bff;--ok:#4ade80;--sf:#1a2330}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:1fr 1.12fr;gap:16px;align-items:start}#devcard{position:sticky;top:12px}@media(max-width:1180px){.layout{grid-template-columns:1fr}#devcard{position:static}}
+.wrap{max-width:1240px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin:0}.sub{color:var(--mu);margin:2px 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:16px}
+.h{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:0 0 10px}
+h2{font-size:20px;margin:0 0 4px}
+button,select{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:9px 14px;cursor:pointer}
+button.run{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600;font-size:17px;padding:11px 20px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;margin-bottom:14px}
+.gc{display:flex;gap:10px;align-items:flex-start;text-align:left;padding:10px 12px;background:var(--sf)}.gc.on{outline:3px solid var(--ac);background:var(--card)}
+.gc b{flex:none;min-width:58px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--ac);color:#fff}
+.gc strong{display:block;font-size:16px}.gc small{display:block;color:var(--mu);margin-top:2px;line-height:1.35}
+.grid{overflow-x:auto;padding-bottom:6px}.q{display:flex;align-items:center;margin-bottom:8px}
+.q span{width:96px;flex:none;font-size:15px}.q span small{display:block;color:var(--mu)}
+.cell{width:60px;height:56px;flex:none;border:0;background:linear-gradient(var(--bd),var(--bd)) center/100% 3px no-repeat;display:flex;align-items:center;justify-content:center;padding:0;border-radius:0}
+.cell b{width:46px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--ac);color:#fff;font-size:20px}
+.cell b.ct{background:var(--tx);color:var(--card);font-size:24px}
+.steps{display:flex;margin-left:96px}.steps i{width:60px;flex:none;text-align:center;font-style:normal;color:var(--mu);font-size:12px}
+.res{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;align-items:start}@media(max-width:820px){.res{grid-template-columns:1fr}}
+.pr{display:grid;grid-template-columns:62px 1fr 64px;gap:10px;align-items:center;margin:8px 0;font:16px ui-monospace,Menlo,monospace}
+.bar{height:20px;border-radius:8px;background:var(--bd);overflow:hidden}.bar i{display:block;height:100%;background:var(--ac);transition:width .4s}
+.pr.win{color:var(--ok);font-weight:700}.pr.win .bar i{background:var(--ok)}
+.q span.mb{width:40px;height:36px;border:2px solid var(--tx);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-left:6px;flex:none;font-size:13px;color:var(--mu)}
+.say{background:var(--sf);border-radius:12px;padding:12px 14px;margin-top:12px;white-space:pre-wrap;font-size:15px}
+.say b{display:block;margin-bottom:4px}
+.two{display:grid;grid-template-columns:1fr;gap:16px}dl.parts{columns:2 280px;column-gap:28px}
+.dev{--glow:#3b82f6;--spd:9s;background:#07121a;border-radius:16px;padding:12px;text-align:center}
+.dev.computing{--glow:#22d3ee;--spd:1.6s}.dev.superposition{--glow:#d946ef;--spd:4s}.dev.measurement{--glow:#22c55e;--spd:14s}
+.dev svg{width:100%;max-width:820px;height:auto;border-radius:10px}.tier{transition:filter .3s}.tier.lit{filter:drop-shadow(0 0 12px var(--glow)) brightness(1.5)}.colglow{transform-box:fill-box;transform-origin:center;animation:cg var(--spd) ease-in-out infinite}@keyframes cg{50%{opacity:.35}}.dev.pulse .colglow{animation:pul2 .8s ease-out}@keyframes pul2{35%{opacity:1;transform:scaleX(1.9)}}.lt{fill:none;stroke:var(--glow);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:4 24;animation:flow var(--lt,2.4s) linear infinite;opacity:.5}.lt.up{animation-direction:reverse}@keyframes flow{to{stroke-dashoffset:-56}}
+.dev.computing .lt{opacity:.95;--lt:1s}.dev.superposition .lt{opacity:.8;--lt:1.8s}.dev.measurement .lt{opacity:.7;--lt:3s}
+#wires.hot .lt{opacity:1;stroke:#fff;stroke-width:3.4;--lt:.5s}
+.ck{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:8px}.ck div{background:var(--sf);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--mu)}.ck b{display:block;color:var(--tx);font-size:15px}.ck i{display:inline-block;width:26px;height:6px;border-radius:3px;margin-right:8px;vertical-align:middle}
+.rd{margin-top:10px;color:#7fe3ff;font:600 18px ui-monospace,Menlo,monospace;min-height:26px}.trk{margin-top:6px;color:#e3f6ff;font:15px/1.45 ui-monospace,Menlo,monospace;min-height:66px}.stg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px}.stg span{padding:5px 10px;border-radius:99px;font-size:13px;background:#0f1c26;color:#7e97a8;border:1px solid #1f3342}.stg .on{background:var(--glow);color:#04141c;border-color:var(--glow);font-weight:700}.stg .done{color:#7fe3a0;border-color:#2c6a45}.stg .done::after{content:" ✓"}#p1.hot,#p2.hot,#p3.hot,#wires.hot{filter:drop-shadow(0 0 10px var(--glow)) brightness(1.55)}#p5.hot{stroke:var(--glow);stroke-width:6}#wires.hot path{stroke-dasharray:7 5;animation:dash 1s linear infinite}.core{transform-box:fill-box;transform-origin:center}.cell.act{box-shadow:inset 0 0 0 60px color-mix(in srgb,var(--ac) 16%,transparent)}
+.dev.computing .hue{animation:hue 1.4s linear infinite}@keyframes hue{to{filter:hue-rotate(360deg)}}
+.orbit{transform-box:fill-box;transform-origin:center;animation:orb var(--spd) linear infinite}
+@keyframes orb{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.08)}}
+.ring{stroke-dasharray:12 7;animation:dash var(--spd) linear infinite}@keyframes dash{to{stroke-dashoffset:-150}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.chips button{background:#0f1c26;color:#bcd;border-color:#1f3342;font-size:13px;padding:6px 10px}.chips button.on{background:var(--glow);color:#04141c;border-color:var(--glow)}
+dl{margin:0}dt{font-weight:700;margin-top:10px}dd{margin:2px 0 0;color:var(--mu)}
+.gl{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:4px 24px}
+.pills{margin:0 0 6px}.pills span{display:inline-block;padding:3px 10px;border-radius:99px;border:1px solid var(--bd);background:var(--card);font-size:13px;margin:0 6px 6px 0}
+.arch{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap;margin:6px 0 16px}.arch div{flex:1;min-width:150px;background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:8px 12px;font-weight:600;transition:.25s}.arch small{display:block;font-weight:400;color:var(--mu);font-size:12px}.arch i{align-self:center;color:var(--mu);font-style:normal}.arch .on{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 25%,transparent)}
+.api{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.api pre,.code{background:var(--sf);border-radius:10px;padding:10px 12px;font:12.5px/1.5 ui-monospace,Menlo,monospace;overflow-x:auto;margin:6px 0 0;white-space:pre}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:14px 0}.notes div{background:var(--sf);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--mu)}.notes b{display:block;color:var(--tx);margin-bottom:2px}
+details summary{cursor:pointer;font-weight:600;margin-top:4px}
+
+body{font-size:14px}.wrap{max-width:1480px;padding:10px 14px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}.top h1{font-size:20px}.top small{color:var(--mu);font-weight:400;font-size:13px}
+.pills{margin:0 0 4px}.pills span{font-size:12px;padding:2px 9px;margin:0 5px 4px 0}
+.arch{margin:4px 0 10px}.arch div{min-width:0;padding:5px 10px;font-size:13px}.arch small{font-size:11px}
+.main{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;align-items:start}
+@media(max-width:1180px){.main{grid-template-columns:1fr}#devcard{order:-1}}
+.card{padding:12px;margin-bottom:0;border-radius:14px}h2{font-size:15px;margin:0 0 8px}
+.gates{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.gc{padding:5px 9px;border-radius:9px;gap:6px;align-items:center;font-size:13px}.gc b{min-width:0;height:24px;padding:0 7px;font-size:13px;margin:0}
+#gdesc{color:var(--mu);font-size:13px;margin:0 0 8px;min-height:36px}
+.q{margin-bottom:5px}.q span{width:70px;font-size:13px}.q span small{font-size:11px}
+.cell{width:42px;height:44px}.cell b{width:34px;height:32px;font-size:15px}.cell b.ct{font-size:18px}.steps{margin-left:70px}.steps i{width:42px;font-size:11px}.q span.mb{width:30px;height:28px;font-size:12px;margin-left:4px}
+.row{gap:6px;margin-bottom:8px}button,select{padding:6px 10px;font-size:13px}button.run{font-size:15px;padding:8px 14px}
+.pr{grid-template-columns:48px 1fr 54px;font-size:13px;margin:5px 0;gap:8px}.bar{height:14px}
+.say{font-size:13px;padding:8px 10px;margin-top:8px}.rd{font-size:16px;margin-top:6px;min-height:22px}.trk{font-size:13px;min-height:40px}
+.dev{padding:8px}.dev svg{max-width:100%}details.hood{margin-top:12px}details.hood summary{cursor:pointer;font-weight:700;font-size:15px;margin:0 0 8px}
+#st{font-size:14px;margin-bottom:4px}
+.top .pills{margin:0 0 0 auto}.top .pills span{margin:0 0 0 5px}
+.arch{margin:2px 0 8px}.arch div{padding:3px 8px;font-size:12px}.arch small{display:none}.arch i{font-size:13px}
+.card{padding:10px}.gc{padding:5px 12px}.gc b{height:26px;padding:0 10px;font-size:14px}#gdesc{min-height:34px;margin:0 0 6px}
+@media(max-width:700px){.top .pills{margin:4px 0 0}.top .pills span{margin:0 5px 4px 0}}
+#cv{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+.leds{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px}.leds div{display:flex;align-items:center;gap:7px;font-size:13px;color:#7e97a8;padding:5px 11px;border-radius:99px;background:#0f1c26;border:1px solid #1f3342;transition:.2s}
+.leds i{width:13px;height:13px;border-radius:50%;background:#26384a}.leds .on{color:#fff;border-color:#3d6a85}.leds .done{color:#9be8b5;border-color:#2c6a45}.leds .done i{background:#2ee66e;box-shadow:0 0 8px #2ee66e}
+.leds{gap:4px}.leds div{padding:4px 8px;font-size:12px;gap:5px}.leds i{width:11px;height:11px}
+#dsvg{width:100%;max-width:440px;height:auto;display:block;margin:0 auto}
+</style></head><body><div class="wrap">
+<div class="top"><h1>⚛️ Q-Core</h1><small>A Java quantum simulator that drives a physical device</small><div class="pills"><span>Java 21</span><span>Spring Boot 3</span><span>REST API</span><span>ESP32 firmware</span><span>No math libraries</span><span>Unit tests included</span></div></div>
+<div class="arch"><div id="a0">Dashboard<small>browser</small></div><i>→</i><div id="a1">Spring Boot API<small>POST /api/circuit/run</small></div><i>→</i><div id="a2">Quantum engine<small>Java state vector</small></div><i>→</i><div id="a3">ESP32 device<small>LEDs · motor · display</small></div></div>
+<div class="main">
+<section class="card" id="ctl"><h2>Build a circuit</h2>
+<div class="row"><button onclick="preset(1,[['H',0,-1,0]])">Superposition</button><button onclick="preset(1,[['X',0,-1,0]])">Flip</button><button onclick="preset(2,[['H',0,-1,0],['CNOT',1,0,1]])">Bell</button><button onclick="preset(3,[['H',0,-1,0],['CNOT',1,0,1],['CNOT',2,1,2]])">GHZ</button><button onclick="preset(+$('nq').value,[])">Clear</button></div>
+<div class="gates" id="pal"></div><p id="gdesc"></p>
+<div class="grid"><div class="steps" id="stp"></div><div id="grid"></div></div>
+<div class="row" style="margin-top:8px"><button class="run" id="run">▶ Run circuit</button><button id="shots">Run 100 shots</button><label style="margin-left:auto">Qubits <select id="nq"><option>1</option><option selected>2</option><option>3</option></select></label></div>
+<span id="shotout" style="color:var(--mu);font-size:13px"></span>
+<div id="link" style="color:var(--mu);font-size:12px;margin-top:4px"></div></section>
+<section class="card" id="devcard"><h2>Q-Core device</h2>
+<div class="dev" id="dev">
+<svg id="dsvg" viewBox="0 0 520 625" role="img" aria-label="Quantum computer with five layers: room temperature rack, 4K, 1K, 100 mK and the 10 mK qubit chip">
+<defs>
+<linearGradient id="gd" x1="0" x2="1"><stop offset="0" stop-color="#7a5514"/><stop offset=".35" stop-color="#f1cf72"/><stop offset=".6" stop-color="#fff0ac"/><stop offset="1" stop-color="#8d6518"/></linearGradient>
+<linearGradient id="sl" x1="0" x2="1"><stop offset="0" stop-color="#7d8996"/><stop offset=".45" stop-color="#eef3f8"/><stop offset="1" stop-color="#8793a0"/></linearGradient>
+<linearGradient id="rk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e4e9ee"/><stop offset="1" stop-color="#a9b3bd"/></linearGradient>
+<radialGradient id="bs" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#c9d3dd"/><stop offset=".7" stop-color="#7f8d9b"/><stop offset="1" stop-color="#4b5866"/></radialGradient>
+<filter id="gw" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter></defs><rect x="210.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="226.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="242.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="258.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="274.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="290.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="306.5" y="126" width="3" height="44" fill="url(#gd)" opacity=".9"/><rect x="193.5" y="126" width="5" height="44" fill="#cfd6dd" opacity=".85"/><rect x="321.5" y="126" width="5" height="44" fill="#cfd6dd" opacity=".85"/><rect x="210.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="226.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="242.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="258.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="274.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="290.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="306.5" y="214" width="3" height="64" fill="url(#gd)" opacity=".9"/><rect x="193.5" y="214" width="5" height="64" fill="#cfd6dd" opacity=".85"/><rect x="321.5" y="214" width="5" height="64" fill="#cfd6dd" opacity=".85"/><rect x="210.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="226.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="242.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="258.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="274.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="290.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="306.5" y="322" width="3" height="66" fill="url(#gd)" opacity=".9"/><rect x="193.5" y="322" width="5" height="66" fill="#cfd6dd" opacity=".85"/><rect x="321.5" y="322" width="5" height="66" fill="#cfd6dd" opacity=".85"/><rect x="210.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="226.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="242.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="258.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="274.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="290.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="306.5" y="434" width="3" height="86" fill="url(#gd)" opacity=".9"/><rect x="193.5" y="434" width="5" height="86" fill="#cfd6dd" opacity=".85"/><rect x="321.5" y="434" width="5" height="86" fill="#cfd6dd" opacity=".85"/><rect x="116" y="12" width="288" height="116" rx="8" fill="url(#rk)" stroke="#6b7783" stroke-width="1.5"/><rect x="126" y="22" width="126" height="28" rx="3" fill="#232a31"/><rect x="132" y="28" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="188" cy="36" r="3" fill="#3a4a58"/><circle class="rl" cx="202" cy="36" r="3" fill="#3a4a58"/><circle class="rl" cx="216" cy="36" r="3" fill="#3a4a58"/><rect x="264" y="22" width="126" height="28" rx="3" fill="#232a31"/><rect x="270" y="28" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="326" cy="36" r="3" fill="#3a4a58"/><circle class="rl" cx="340" cy="36" r="3" fill="#3a4a58"/><circle class="rl" cx="354" cy="36" r="3" fill="#3a4a58"/><rect x="126" y="56" width="126" height="28" rx="3" fill="#232a31"/><rect x="132" y="62" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="188" cy="70" r="3" fill="#3a4a58"/><circle class="rl" cx="202" cy="70" r="3" fill="#3a4a58"/><circle class="rl" cx="216" cy="70" r="3" fill="#3a4a58"/><rect x="264" y="56" width="126" height="28" rx="3" fill="#232a31"/><rect x="270" y="62" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="326" cy="70" r="3" fill="#3a4a58"/><circle class="rl" cx="340" cy="70" r="3" fill="#3a4a58"/><circle class="rl" cx="354" cy="70" r="3" fill="#3a4a58"/><rect x="126" y="90" width="126" height="28" rx="3" fill="#232a31"/><rect x="132" y="96" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="188" cy="104" r="3" fill="#3a4a58"/><circle class="rl" cx="202" cy="104" r="3" fill="#3a4a58"/><circle class="rl" cx="216" cy="104" r="3" fill="#3a4a58"/><rect x="264" y="90" width="126" height="28" rx="3" fill="#232a31"/><rect x="270" y="96" width="36" height="16" rx="2" fill="#4a6f9a"/><circle class="rl" cx="326" cy="104" r="3" fill="#3a4a58"/><circle class="rl" cx="340" cy="104" r="3" fill="#3a4a58"/><circle class="rl" cx="354" cy="104" r="3" fill="#3a4a58"/><rect id="rim0" x="116" y="126" width="288" height="4" rx="2" fill="#3a4a58"/><ellipse cx="260" cy="198" rx="150" ry="24" fill="#8a6416"/><ellipse cx="260" cy="190" rx="150" ry="24" fill="url(#gd)"/><ellipse id="rim1" cx="260" cy="190" rx="147" ry="21" fill="none" stroke="#3a4a58" stroke-width="3"/><rect x="180" y="162" width="16" height="26" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="188.0" cy="162" rx="8.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="218" y="162" width="16" height="26" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="226.0" cy="162" rx="8.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="256" y="162" width="16" height="26" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="264.0" cy="162" rx="8.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="294" y="162" width="16" height="26" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="302.0" cy="162" rx="8.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="332" y="162" width="16" height="26" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="340.0" cy="162" rx="8.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><ellipse cx="260" cy="308" rx="140" ry="22" fill="#8a6416"/><ellipse cx="260" cy="300" rx="140" ry="22" fill="url(#gd)"/><ellipse id="rim2" cx="260" cy="300" rx="137" ry="19" fill="none" stroke="#3a4a58" stroke-width="3"/><rect x="196" y="266" width="24" height="32" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="208.0" cy="266" rx="12.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="248" y="266" width="24" height="32" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="260.0" cy="266" rx="12.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="300" y="266" width="24" height="32" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="312.0" cy="266" rx="12.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><ellipse cx="260" cy="418" rx="150" ry="24" fill="#8a6416"/><ellipse cx="260" cy="410" rx="150" ry="24" fill="url(#gd)"/><ellipse id="rim3" cx="260" cy="410" rx="147" ry="21" fill="none" stroke="#3a4a58" stroke-width="3"/><rect x="172" y="380" width="18" height="30" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="181.0" cy="380" rx="9.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="214" y="380" width="18" height="30" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="223.0" cy="380" rx="9.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="262" y="380" width="18" height="30" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="271.0" cy="380" rx="9.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><rect x="310" y="380" width="18" height="30" rx="3" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="319.0" cy="380" rx="9.0" ry="3.5" fill="#dfe6ec" stroke="#6b7783"/><circle cx="236" cy="404" r="8" fill="url(#sl)" stroke="#6b7783"/><circle cx="288" cy="404" r="8" fill="url(#sl)" stroke="#6b7783"/><ellipse cx="260" cy="574" rx="150" ry="32" fill="#39454f"/><ellipse cx="260" cy="566" rx="150" ry="32" fill="url(#bs)"/><ellipse id="rim4" cx="260" cy="566" rx="147" ry="29" fill="none" stroke="#3a4a58" stroke-width="3"/><ellipse cx="260" cy="566" rx="118" ry="22" fill="#0c1b2b" opacity=".8"/><ellipse id="cglow" cx="260" cy="566" rx="60" ry="16" fill="#46a0ff" opacity=".35" filter="url(#gw)"/><rect x="212" y="548" width="96" height="40" rx="5" fill="#0e2a4a" stroke="#4aa3ff" stroke-width="1.5"/><rect x="232" y="556" width="56" height="24" rx="3" fill="none" stroke="#4aa3ff" stroke-width="1.2"/><rect class="pin" x="216" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="226" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="236" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="246" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="256" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="266" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="276" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="286" y="543" width="4" height="7" fill="#46a0ff"/><rect class="pin" x="296" y="543" width="4" height="7" fill="#46a0ff"/><path d="M126 566q10-16 20 0t20 0t20 0t20 0" fill="none" stroke="#5aa8ff" stroke-width="2"/><path d="M356 566c8-14 20-14 28 0s20 14 28 0s-20-14-28 0s-20 14-28 0" fill="none" stroke="#5aa8ff" stroke-width="2"/><g id="sig" style="filter:drop-shadow(0 0 5px #fff)"><circle id="sg0" cx="212" cy="-20" r="3.6" fill="#fff"/><circle id="sg1" cx="236" cy="-20" r="3.6" fill="#fff"/><circle id="sg2" cx="260" cy="-20" r="3.6" fill="#fff"/><circle id="sg3" cx="284" cy="-20" r="3.6" fill="#fff"/><circle id="sg4" cx="308" cy="-20" r="3.6" fill="#fff"/></g><line id="ent" x1="0" y1="0" x2="0" y2="0" stroke="#dd50f5" stroke-width="2" stroke-dasharray="5 4" opacity="0"/><line id="bm" x1="0" y1="0" x2="0" y2="0" stroke="#fff" stroke-width="3" opacity="0"/><g id="orb0" style="display:none"><circle id="og0" r="22" fill="#46a0ff" opacity=".5" filter="url(#gw)"/><circle id="oc0" r="11" fill="#46a0ff" stroke="#fff" stroke-opacity=".8"/><text id="om0" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="ui-monospace,Menlo,monospace"></text></g><g id="orb1" style="display:none"><circle id="og1" r="22" fill="#46a0ff" opacity=".5" filter="url(#gw)"/><circle id="oc1" r="11" fill="#46a0ff" stroke="#fff" stroke-opacity=".8"/><text id="om1" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="ui-monospace,Menlo,monospace"></text></g><g id="orb2" style="display:none"><circle id="og2" r="22" fill="#46a0ff" opacity=".5" filter="url(#gw)"/><circle id="oc2" r="11" fill="#46a0ff" stroke="#fff" stroke-opacity=".8"/><text id="om2" y="30" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="ui-monospace,Menlo,monospace"></text></g><circle id="bdg0" cx="16" cy="70" r="11" fill="#1f3342" stroke="#4d7f99"/><text x="16" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">1</text><text x="32" y="74" font-size="11" fill="#cfe3f0">Room temp</text><text x="512" y="74" text-anchor="end" font-size="11" fill="#8fa8ba">300 K</text><circle id="bdg1" cx="16" cy="190" r="11" fill="#1f3342" stroke="#4d7f99"/><text x="16" y="194" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">2</text><text x="32" y="194" font-size="11" fill="#cfe3f0">4K stage</text><text x="512" y="194" text-anchor="end" font-size="11" fill="#8fa8ba">4 K</text><circle id="bdg2" cx="16" cy="300" r="11" fill="#1f3342" stroke="#4d7f99"/><text x="16" y="304" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">3</text><text x="32" y="304" font-size="11" fill="#cfe3f0">1K stage</text><text x="512" y="304" text-anchor="end" font-size="11" fill="#8fa8ba">1 K</text><circle id="bdg3" cx="16" cy="410" r="11" fill="#1f3342" stroke="#4d7f99"/><text x="16" y="414" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">4</text><text x="32" y="414" font-size="11" fill="#cfe3f0">100 mK stage</text><text x="512" y="414" text-anchor="end" font-size="11" fill="#8fa8ba">100 mK</text><circle id="bdg4" cx="16" cy="545" r="11" fill="#1f3342" stroke="#4d7f99"/><text x="16" y="549" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">5</text><text x="32" y="549" font-size="11" fill="#cfe3f0">10 mK core</text><text x="512" y="549" text-anchor="end" font-size="11" fill="#8fa8ba">10 mK</text><text id="gt" x="260" y="618" text-anchor="middle" font-size="12" fill="#9be8ff" font-family="ui-monospace,Menlo,monospace"></text></svg><div hidden><div id="racks"></div><div id="wires"></div><div id="p1"></div><div id="p2"><div id="t0"></div><div id="t1"></div><div id="t2"></div><div id="t3"></div></div><div id="p3"></div><div id="p5"></div><span id="d0"></span><span id="d1"></span><span id="d2"></span><span id="d3"></span><span id="d4"></span></div>
+<div class="rd" id="rd"></div><div class="trk" id="trk"></div></div></section>
+<section class="card" id="res"><h2>Result</h2><div id="st"></div><div id="pt"></div>
+<div style="text-align:center;margin-top:6px"><svg viewBox="0 0 200 200" width="100%" style="max-width:150px" role="img" aria-label="Bloch sphere of qubit 0">
+<circle cx="100" cy="100" r="80" fill="none" stroke="var(--bd)" stroke-width="2.5"/><ellipse cx="100" cy="100" rx="80" ry="24" fill="none" stroke="var(--bd)" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="100" y1="20" x2="100" y2="180" stroke="var(--bd)" stroke-width="2"/>
+<text x="100" y="14" font-size="14" text-anchor="middle" fill="var(--tx)">|0⟩</text><text x="100" y="196" font-size="14" text-anchor="middle" fill="var(--tx)">|1⟩</text>
+<line id="bv" x1="100" y1="100" x2="100" y2="100" stroke="var(--ac)" stroke-width="4"/><circle id="bd" cx="100" cy="100" r="7" fill="var(--ac)"/></svg><div style="font-weight:700;font-size:13px">Bloch sphere · qubit 0</div><div style="color:var(--mu);font-size:12px">Center = entangled. Up = |0⟩, down = |1⟩.</div></div>
+<div class="say" id="mean"></div></section>
+</div>
+<details class="card hood"><summary>Under the hood: circuit in words, API, design and code</summary><div class="say" id="words" style="margin:0 0 12px"></div>
+<p class="sub" style="margin:0 0 10px">The API call your circuit makes. Here it is computed in your browser with the same rules; with the Java app running it is the real response.</p>
+<div class="api"><div><b>POST /api/circuit/run</b><pre id="rq"></pre></div><div><b>Response</b><pre id="rs"></pre></div></div>
+<div class="notes">
+<div><b>State-vector engine</b>2^n complex amplitudes, up to 5 qubits. Gates H, X, Y, Z, S, T and CNOT. Pure Java with its own Complex type, no math library.</div>
+<div><b>Testable by design</b>A SequencePlanner turns a circuit into timed device events with no Spring or network code, so it is unit-tested. The dashboard and the ESP32 use the same timings.</div>
+<div><b>Safe with hardware</b>Device calls are asynchronous and best-effort, a new Run cancels the old sequence, and the API works with no hardware attached.</div>
+</div>
+<details><summary>Show the core gate code (Java)</summary><pre class="code">private static Complex[] single(Complex[] s, int n, Operation op) {
+    Complex[][] m = op.gate().getMatrix();
+    int mask = 1 &lt;&lt; (n - 1 - op.target());   // qubit 0 = leftmost bit
+    Complex[] out = s.clone();
+    for (int i = 0; i &lt; s.length; i++) {
+        if ((i &amp; mask) != 0) continue;       // visit each |0&gt;,|1&gt; pair once
+        Complex a = s[i], b = s[i | mask];
+        out[i]        = m[0][0].times(a).plus(m[0][1].times(b));
+        out[i | mask] = m[1][0].times(a).plus(m[1][1].times(b));
+    }
+    return out;
+}</pre></details></details>
+</div>
+<script>
+const $=i=>document.getElementById(i);
+const S=Math.SQRT1_2,M={H:[S,0,S,0,S,0,-S,0],X:[0,0,1,0,1,0,0,0],Z:[1,0,0,0,0,0,-1,0]};
+const NAME={H:"Hadamard",X:"Pauli-X (NOT)",Z:"Pauli-Z (phase flip)",CNOT:"CNOT (controlled-NOT)"};
+const SHORT={H:"puts the qubit into an equal mix of 0 and 1",X:"flips 0 to 1 and 1 to 0",Z:"flips the sign (phase) of the |1⟩ part; no visible change on its own",CNOT:"flips the target if the control is 1"};
+const DESC={H:"Creates superposition: 50% chance of 0, 50% of 1.",X:"The quantum NOT: swaps |0⟩ and |1⟩.",Z:"Flips the phase. Invisible alone, but matters after an H.",CNOT:"Two-qubit gate: flips the target if the control is 1. Creates entanglement."};
+const COLS=6;let n=2,sel="H",ops=[{g:"H",t:0,c:-1,col:0},{g:"CNOT",t:1,c:0,col:1}],timers=[],P=null;
+const MODES={idle:"Idle",computing:"Computing",superposition:"Superposition",measurement:"Measurement"};
+function arch(k){const m={0:[0,1],1:[3],2:[3],3:[3],4:[2,3]}[k]||[];[0,1,2,3].forEach(i=>$("a"+i).classList.toggle("on",m.includes(i)))}
+function apiPanel(measured){const r=simulate();
+const req={qubits:n,ops:sorted().map(o=>o.g=="CNOT"?{gate:o.g,target:o.t,control:o.c}:{gate:o.g,target:o.t})};
+const pr="{ "+r.p.map((v,i)=>`"${lab(i)}": ${+v.toFixed(3)}`).join(", ")+" }";
+const mode=r.p.filter(v=>v>1e-9).length>1?"superposition":"measurement";
+$("rq").textContent=`{\n "qubits": ${n},\n "ops": [${req.ops.length?"\n":""}${req.ops.map(o=>"  "+JSON.stringify(o).replace(/,/g,", ").replace(/:/g,": ")).join(",\n")}${req.ops.length?"\n ":""}]\n}`;
+$("rs").textContent=`{\n "probabilities": ${pr},\n "measured": ${measured==null?"null":'"'+measured+'"'},\n "bloch": [${r.bloch.map(v=>+v.toFixed(3)).join(", ")}],\n "mode": "${mode}"\n}`}
+const sorted=()=>[...ops].sort((a,b)=>a.col-b.col);
+function simulate(upto){const N=1<<n,re=new Array(N).fill(0),im=new Array(N).fill(0);re[0]=1;
+sorted().slice(0,upto==null?undefined:upto).forEach(o=>{
+if(o.g=="CNOT"){const cm=1<<(n-1-o.c),tm=1<<(n-1-o.t);for(let i=0;i<N;i++)if((i&cm)&&!(i&tm)){const j=i|tm;[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]]}return}
+const m=M[o.g],mk=1<<(n-1-o.t);for(let i=0;i<N;i++){if(i&mk)continue;const j=i|mk,ar=re[i],ai=im[i],br=re[j],bi=im[j];
+re[i]=m[0]*ar-m[1]*ai+m[2]*br-m[3]*bi;im[i]=m[0]*ai+m[1]*ar+m[2]*bi+m[3]*br;
+re[j]=m[4]*ar-m[5]*ai+m[6]*br-m[7]*bi;im[j]=m[4]*ai+m[5]*ar+m[6]*bi+m[7]*br}});
+const p=re.map((r,i)=>r*r+im[i]*im[i]),h=N/2;let r00=0,r11=0,xr=0,xi=0;
+for(let k=0;k<h;k++){r00+=p[k];r11+=p[h+k];xr+=re[k]*re[h+k]+im[k]*im[h+k];xi+=im[k]*re[h+k]-re[k]*im[h+k]}
+return{p,bloch:[2*xr,-2*xi,r00-r11]}}
+const lab=i=>i.toString(2).padStart(n,"0");
+function sample(p){let x=Math.random(),c=0;for(let i=0;i<p.length;i++){c+=p[i];if(x<c)return i}return p.length-1}
+const SN={H:"Hadamard",X:"NOT",Z:"Phase flip",CNOT:"CNOT"};
+function drawPal(){$("pal").innerHTML=["H","X","Z","CNOT"].map(g=>`<button class="gc ${g==sel?"on":""}" onclick="sel='${g}';drawPal()" title="${DESC[g]}"><b>${g}</b></button>`).join("");$("gdesc").textContent=NAME[sel]+": "+DESC[sel]}
+function drawGrid(){$("stp").innerHTML=Array.from({length:COLS},(_,c)=>`<i>step ${c+1}</i>`).join("");let h="";
+for(let q=0;q<n;q++){h+=`<div class="q"><span>Qubit ${q}<small>starts |0⟩</small></span>`;
+for(let c=0;c<COLS;c++){const o=ops.find(o=>o.col==c&&(o.t==q||o.c==q));let b="";
+if(o)b=o.g=="CNOT"?(o.c==q?'<b class="ct" title="control">●</b>':'<b class="ct" title="target">⊕</b>'):`<b>${o.g}</b>`;
+h+=`<button class="cell" data-col="${c}" onclick="place(${q},${c})" aria-label="qubit ${q} step ${c+1}">${b}</button>`}h+='<span class="mb" title="Measured at the end">M</span></div>'}$("grid").innerHTML=h}
+function place(q,c){const ex=ops.findIndex(o=>o.col==c&&(o.t==q||o.c==q));if(ex>=0){const same=ops[ex].g==sel;ops.splice(ex,1);if(same){refresh();return}}
+if(sel=="CNOT"){if(n<2)return;const t=(q+1)%n;ops=ops.filter(o=>!(o.col==c&&(o.t==t||o.c==t)));ops.push({g:"CNOT",t,c:q,col:c})}else ops.push({g:sel,t:q,c:-1,col:c});refresh()}
+function preset(k,list){n=k;$("nq").value=k;ops=list.map(a=>({g:a[0],t:a[1]>=0&&a[0]=="CNOT"?(a[2]+1):a[1],c:a[2],col:a[3]}));
+ops.forEach(o=>{if(o.g!="CNOT")o.t=o.t});refresh()}
+function showProbs(p,w){$("rd").textContent=p.map((v,i)=>v>0.0005?`|${lab(i)}⟩ ${Math.round(v*100)}%`:"").filter(Boolean).join("  ·  ");$("pt").innerHTML=p.map((v,i)=>`<div class="pr ${w==i?"win":""}"><span>|${lab(i)}⟩</span><div class="bar"><i style="width:${(v*100).toFixed(1)}%"></i></div><span>${(v*100).toFixed(1)}%</span></div>`).join("");
+const idx=p.length<=4?p.map((_,i)=>i):p.map((v,i)=>[v,i]).sort((x,y)=>y[0]-x[0]).slice(0,4).map(x=>x[1]);for(let k=0;k<4;k++)$("d"+k).textContent=idx[k]!=null?`|${lab(idx[k])}>  ${Math.round(p[idx[k]]*100)}%`:""}
+function bloch(b){const R=80,x=100+R*(b[1]*.9+b[0]*.35),y=100-R*(b[2]*.95-b[0]*.3);$("bv").setAttribute("x2",x);$("bv").setAttribute("y2",y);$("bd").setAttribute("cx",x);$("bd").setAttribute("cy",y)}
+function words(){const l=[...ops].sort((a,b)=>a.col-b.col).map((o,i)=>`Step ${o.col+1}: `+(o.g=="CNOT"?`${NAME.CNOT}, control qubit ${o.c}, target qubit ${o.t}: ${SHORT.CNOT}.`:`${NAME[o.g]} on qubit ${o.t}: ${SHORT[o.g]}.`));
+return l.length?l.join("\n"):"No gates yet, so every qubit stays |0⟩."}
+function meaning(r){const k=r.p.filter(v=>v>1e-9).length,L=Math.hypot(...r.bloch);
+if(k==1){const i=r.p.findIndex(v=>v>1e-9);return["Definite state |"+lab(i)+"⟩","The qubits are in one exact state. Measuring always gives |"+lab(i)+"⟩. Add an H gate to create superposition."]}
+if(n>=2&&L<.99)return["Entangled","Qubit 0 on its own has no direction (the Bloch arrow is at the center) because it is linked to the others. Each measurement gives one of "+k+" results at random, but the qubits always agree with each other. Measure one and you know the rest."];
+return["Superposition","The qubits hold "+k+" possible results at once. Each measurement gives one of them at random, with the probabilities shown. Press Run 100 shots to see the pattern."]}
+function summary(r){const m=meaning(r);$("st").textContent="State: "+m[0];$("mean").innerHTML="<b>What this means</b>"+m[1]}
+function setMode(m,txt){$("dev").className="dev "+m;$("d4").textContent=txt||("Status: "+MODES[m]);document.querySelectorAll("#chips button").forEach(b=>b.classList.toggle("on",b.dataset.m==m))}
+function clearT(){timers.forEach(clearTimeout);timers=[]}
+function refresh(){clearT();drawGrid();const r=simulate();P=r;showProbs(r.p,null);bloch(r.bloch);summary(r);$("words").innerHTML="<b>Your circuit in words</b>"+words();$("shotout").textContent="";apiPanel();hl(-1);stage(-1);trk("Idle: press Run circuit");setMode("idle")}
+(function(){let r="";for(let i=0;i<7;i++)r+=`<rect x="${166+i*67}" y="168" width="60" height="196" fill="url(#rk)" stroke="#9bb8d8" stroke-opacity=".6"/>`;
+r+='<polygon points="0,92 138,150 138,376 0,440" fill="url(#rk)" stroke="#9bb8d8" stroke-opacity=".6"/><polygon points="800,92 662,150 662,376 800,440" fill="url(#rk)" stroke="#9bb8d8" stroke-opacity=".6"/><rect x="134" y="140" width="8" height="240" fill="#dfeaf7" opacity=".85"/><rect x="658" y="140" width="8" height="240" fill="#dfeaf7" opacity=".85"/>';
+$("racks").innerHTML=r;let c="";
+for(let dx=-72;dx<=72;dx+=12)c+=`<path d="M${400+dx*.7} 78 Q${400+dx*.9} 105 ${400+dx} 130" stroke="#d9b24f" stroke-width="1.3" fill="none"/>`;
+[336,362,388,412,438,464].forEach(x=>c+=`<rect x="${x-3}" y="140" width="6" height="86" fill="url(#gd)"/>`);
+[348,374,400,426,452].forEach(x=>c+=`<rect x="${x-1.5}" y="140" width="3" height="86" fill="#c99a3c" opacity=".8"/>`);
+[330,352,378,422,448,470].forEach(x=>c+=`<rect x="${x-3}" y="230" width="6" height="68" fill="url(#gd)"/>`);
+for(let k=0;k<9;k++){const x1=330+k*17,x2=372+k*7;c+=`<path d="M${x1} 305 Q${(x1+x2)/2} 340 ${x2} 380" stroke="#e0b85a" stroke-width="1.2" fill="none"/>`}
+c+='<path d="M322 300C296 345 322 405 352 450" stroke="#d98a7a" stroke-width="2.4" fill="none"/><path d="M478 300C504 345 478 405 448 450" stroke="#d98a7a" stroke-width="2.4" fill="none"/>';
+[388,400,412].forEach(x=>c+=`<rect x="${x-2}" y="388" width="4" height="12" fill="#e6c36a"/>`);
+let L="";const lp=(d,up)=>L+=`<path class="lt${up?" up":""}" d="${d}"/>`;
+for(let dx=-72;dx<=72;dx+=24)lp(`M${400+dx*.7} 78 Q${400+dx*.9} 105 ${400+dx} 130`);
+[336,388,438,464].forEach(x=>lp(`M${x} 140 L${x} 226`));[330,378,422,470].forEach(x=>lp(`M${x} 230 L${x} 298`));
+for(let k=0;k<9;k+=2){const x1=330+k*17,x2=372+k*7;lp(`M${x1} 305 Q${(x1+x2)/2} 340 ${x2} 380`)}
+lp("M322 300C296 345 322 405 352 450",true);lp("M478 300C504 345 478 405 448 450",true);
+c+=`<g class="hue">${L}</g>`;
+$("wires").innerHTML=c})();
+function tier(k){const e=$("t"+(k%4));e.classList.add("lit");setTimeout(()=>e.classList.remove("lit"),900)}
+const trk=t=>{$("trk").textContent=t};
+const hl=c=>document.querySelectorAll(".cell").forEach(e=>e.classList.toggle("act",+e.dataset.col==c));
+function pulse(){const d=$("dev");d.classList.remove("pulse");void d.offsetWidth;d.classList.add("pulse")}
+const PARTS=[["①","LED ring"],["②","Gold stages"],["③","Core column"],["④","Cables"],["⑤","Display"]];
+function stage(k,text){["p1","p2","p3","wires","p5"].forEach((id,i)=>$(id).classList.toggle("hot",i==k));arch(k);if(text)trk(text)}
+const narrow=()=>window.matchMedia&&matchMedia("(max-width:1180px)").matches;
+$("run").onclick=()=>{clearT();if(narrow()&&$("devcard").scrollIntoView)$("devcard").scrollIntoView({behavior:"smooth",block:"center"});
+const so=sorted(),tot=so.length,fin=simulate(),multi=fin.p.filter(v=>v>1e-9).length>1,r0=simulate(0);
+const at=(ms,fn)=>timers.push(setTimeout(fn,ms));
+let api=null;fetch("/api/circuit/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({qubits:n,ops:so.map(o=>({gate:o.g,target:o.t,control:o.c<0?null:o.c}))})}).then(r=>r.ok?r.json():Promise.reject()).then(j=>{api=j;$("link").textContent=j.deviceEnabled?"Device link: LIVE. Your ESP32 is acting out the 5 parts now.":"Device link: API connected, but no ESP32 set. Add qcore.esp32.url in application.properties."}).catch(()=>{$("link").textContent="Preview only. Open this page from the Spring Boot app (http://localhost:8080) to drive the real device."});
+setMode("computing","Status: Computing...");showProbs(r0.p,null);bloch(r0.bloch);$("st").textContent="Computing...";
+stage(0,"Step 1 · Room temperature: the control computer sends your circuit as electrical signals.");
+at(1500,()=>stage(1,"Step 2 · 4K stage: attenuators and filters clean the signal and cut noise."));
+at(2800,()=>stage(2,"Step 3 · 1K stage: thermal and infrared filters block heat and stray light."));
+at(4100,()=>stage(3,"Step 4 · 100 mK stage: amplifiers and superconducting wiring carry the signal."));
+at(5400,()=>stage(4,"Step 5 · 10 mK core: the qubit chip is about to run your gates."));
+let t=6300;
+so.forEach((o,k)=>{at(t,()=>{const d=o.g=="CNOT"?`CNOT, control q${o.c} to target q${o.t}`:`${NAME[o.g]} on q${o.t}`,r=simulate(k+1);
+hl(o.col);pulse();showProbs(r.p,null);bloch(r.bloch);$("d4").textContent=`Step ${k+1}/${tot}: ${o.g}`;$("st").textContent=`Gate ${k+1} of ${tot}: ${d}`;
+stage(4,`Step 5 · 10 mK core: gate ${k+1} of ${tot}: ${d}.`)});t+=1500});
+if(!tot)t+=1000;
+at(t,()=>{hl(-1);showProbs(fin.p,null);bloch(fin.bloch);summary(fin);setMode(multi?"superposition":"measurement");pulse();
+stage(4,"Step 5 · 10 mK core: all gates done. State: "+meaning(fin)[0]+". Now measuring.")});t+=1400;
+at(t,()=>{const w=api&&api.measured?parseInt(api.measured,2):sample(fin.p);showProbs(fin.p.map((_,k)=>k==w?1:0),w);$("st").textContent="Measured |"+lab(w)+"⟩ (collapsed to one result)";setMode("measurement","Result: |"+lab(w)+">");pulse();apiPanel(lab(w));
+stage(4,"Result: measured |"+lab(w)+"⟩. The answer travels back up to the control computer.")});t+=2400;
+at(t,()=>{stage(5,"Done. All 5 layers finished. Ready for the next circuit.");setMode("idle");if(narrow()&&$("pt").scrollIntoView)$("pt").scrollIntoView({behavior:"smooth",block:"center"})})};
+$("shots").onclick=()=>{const r=simulate(),c=new Array(r.p.length).fill(0);for(let i=0;i<100;i++)c[sample(r.p)]++;
+$("shotout").textContent="100 shots: "+c.map((v,i)=>v?`|${lab(i)}⟩ ${v}`:"").filter(Boolean).join(",  ")};
+$("nq").onchange=()=>{n=+$("nq").value;ops=ops.filter(o=>o.t<n&&o.c<n);refresh()};
+drawPal();refresh();
+</script><script>
+(function(){
+const MC={idle:[70,140,255],computing:[40,220,255],superposition:[222,80,245],measurement:[40,230,110]};
+const BLUE=[70,140,255],GOLD=[255,196,60],VIO=[222,80,245],GREEN="#2ee66e",OFF="#3a4a58";
+const hex=c=>"#"+c.map(v=>Math.round(v).toString(16).padStart(2,"0")).join(""),mixc=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const Ys=[70,190,300,410,545],SP=[[126,170],[214,278],[322,388],[434,505]],$s=i=>document.getElementById(i);
+const rl=[...document.querySelectorAll(".rl")];let ran=false,flash=[0,0,0],beam=0,bc=0,bt=1,lastKey="",meas=null,last=performance.now();
+function frame(now){const dt=Math.min(50,now-last);last=now;
+const cls=$("dev").className,mode=["computing","superposition","measurement"].find(m=>cls.includes(m))||"idle",mc=MC[mode];
+let stage=0;["p1","p2","p3","wires","p5"].forEach((id,i)=>{if($(id).classList.contains("hot"))stage=i+1});
+const d4=$("d4").textContent,sm=/Step (\d+)\//.exec(d4),step=sm?+sm[1]:0,N=n,so=sorted(),resu=/Result/.test(d4);
+const r=(stage==5&&!resu)?simulate(step):(stage>0&&stage<5)?simulate(0):simulate();
+let p1=Array.from({length:N},(_,q)=>r.p.reduce((s,v,i)=>s+(((i>>(N-1-q))&1)?v:0),0));
+const key=stage+"|"+d4;
+if(key!==lastKey){lastKey=key;
+if(stage==5&&step>0&&!resu&&so[step-1]){const o=so[step-1];flash[o.t]=1;if(o.g=="CNOT"){flash[o.c]=1;beam=1;bc=o.c;bt=o.t}}
+else if(stage==5&&resu){const mm=/\|([01]+)>/.exec(d4);meas=mm?mm[1]:null;flash=[1,1,1]}}
+if(!(stage==5&&resu))meas=null;if(meas)p1=p1.map((_,q)=>+meas[q]||0);
+if(stage>0)ran=true;if($("trk").textContent.startsWith("Idle: press"))ran=false;
+flash=flash.map(v=>Math.max(0,v-dt*.0016));beam=Math.max(0,beam-dt*.0011);
+const pulse=.65+.35*Math.sin(now/180);
+for(let i=0;i<5;i++){const st=stage==i+1?"on":((ran&&stage==0)||stage>i+1?"done":"off"),col=st=="on"?hex(mc):st=="done"?GREEN:OFF;
+const rim=$s("rim"+i);rim.setAttribute(i==0?"fill":"stroke",col);rim.setAttribute("opacity",st=="on"?pulse:st=="off"?.55:1);
+$s("bdg"+i).setAttribute("fill",st=="on"?hex(mc):st=="done"?GREEN:"#1f3342")}
+rl.forEach((e,i)=>e.setAttribute("fill",stage==1?(Math.sin(now/110+i*1.7)>0?hex(mc):OFF):(ran&&stage>1)||(ran&&stage==0)?GREEN:OFF));
+// travelling signal: down through the layers, then back up with the result
+let y0=-30,y1=-30,up=false;
+if(stage>=2&&stage<=4){[y0,y1]=SP[stage-2]}else if(stage==5&&resu){y0=126;y1=520;up=true}
+for(let j=0;j<5;j++){const e=$s("sg"+j);if(y0<0){e.setAttribute("cy",-30);continue}
+const len=y1-y0,ph=((now*.14+j*(len/5))%len);e.setAttribute("cy",up?y1-ph:y0+ph);e.setAttribute("fill",up?GREEN:"#fff")}
+// qubit orbs above the chip
+const X=[[260],[225,295],[190,260,330]][N-1],ocy=508;
+for(let q=0;q<3;q++){const g=$s("orb"+q);if(q>=N){g.style.display="none";continue}g.style.display="";
+const pp=p1[q],sp=4*pp*(1-pp);let c=mixc(BLUE,GOLD,pp);c=mixc(c,VIO,Math.min(1,sp*.85));const f=flash[q],h=hex(c);
+g.setAttribute("transform",`translate(${X[q]},${ocy})`);$s("oc"+q).setAttribute("fill",h);$s("oc"+q).setAttribute("r",11+f*6);$s("og"+q).setAttribute("fill",h);$s("og"+q).setAttribute("opacity",.45+f*.4);
+$s("om"+q).textContent=meas?"|"+meas[q]+"⟩":""}
+const ent=$s("ent"),bm=$s("bm");
+if(N>1&&r.p.filter(v=>v>1e-9).length>1&&Math.hypot(...r.bloch)<.99&&stage!=1&&!(stage==5&&resu)&&(stage==0||stage==5)){ent.setAttribute("x1",X[0]);ent.setAttribute("x2",X[N-1]);ent.setAttribute("y1",ocy);ent.setAttribute("y2",ocy);ent.setAttribute("opacity",.5+.3*Math.sin(now/300))}else ent.setAttribute("opacity",0);
+if(beam>0&&N>1&&X[bc]!=null&&X[bt]!=null){bm.setAttribute("x1",X[bc]);bm.setAttribute("x2",X[bt]);bm.setAttribute("y1",ocy);bm.setAttribute("y2",ocy);bm.setAttribute("opacity",beam);bm.setAttribute("stroke-width",2+4*beam)}else bm.setAttribute("opacity",0);
+$s("cglow").setAttribute("fill",hex(mc));$s("cglow").setAttribute("opacity",stage==5?.5+.3*Math.sin(now/200):.3);
+$s("gt").textContent=stage==5?(resu?"Measured "+(meas?"|"+meas+"⟩":""):(step?`Gate ${step}/${so.length}: ${so[step-1]?so[step-1].g:""}`:"")):"";
+requestAnimationFrame(frame)}
+requestAnimationFrame(frame)})();
+</script>
+</body></html>
